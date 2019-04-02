@@ -4,11 +4,6 @@
 	<make>Ford</make>
 	<model>Explorer</model>
 	<parts>
-		<inventoryId>engine</inventoryId>
-		<type>ENGINE</type>
-		<condition>USED</condition>
-	</parts>
-	<parts>
 		<inventoryId>electrical</inventoryId>
 		<type>ELECTRICAL</type>
 		<condition>NO_POWER</condition>

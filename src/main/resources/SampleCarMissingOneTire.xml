@@ -26,11 +26,6 @@
 	<parts>
 		<inventoryId>tire</inventoryId>
 		<type>TIRE</type>
-		<condition>WORN</condition>
-	</parts>
-	<parts>
-		<inventoryId>tire</inventoryId>
-		<type>TIRE</type>
 		<condition>NEW</condition>
 	</parts>
 	<parts>

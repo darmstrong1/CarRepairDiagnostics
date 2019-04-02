@@ -3,8 +3,10 @@ package com.ubiquisoft.evaluation.domain;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -30,8 +32,26 @@ public class Car {
 		 *          "TIRE": 3
 		 *      }
 		 */
+		Map<PartType, Integer> missingParts = new HashMap<>();
 
-		return null;
+		if(parts != null) {
+			List<Part> tires = parts.stream().filter(p -> p.getType().equals(PartType.TIRE)).collect(Collectors.toList());
+			if(tires.size() < 4) {
+				missingParts.put(PartType.TIRE, 4 - tires.size());
+			}
+			checkforMissingPart(PartType.ENGINE, missingParts);
+			checkforMissingPart(PartType.ELECTRICAL, missingParts);
+			checkforMissingPart(PartType.FUEL_FILTER, missingParts);
+			checkforMissingPart(PartType.OIL_FILTER, missingParts);
+		}
+
+		return missingParts;
+	}
+
+	private void checkforMissingPart(PartType type, Map<PartType, Integer> missingParts) {
+		if(!parts.stream().filter(p -> p.getType().equals(type)).findFirst().isPresent()) {
+			missingParts.put(type, 1);
+		}
 	}
 
 	@Override

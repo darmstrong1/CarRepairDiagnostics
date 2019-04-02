@@ -9,8 +9,15 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class CarDiagnosticEngine {
+
+	private static int YEAR_MISSING = 1;
+	private static int MAKE_MISSING = 2;
+	private static int MODEL_MISSING = 4;
 
 	public void executeDiagnostics(Car car) {
 		/*
@@ -38,8 +45,63 @@ public class CarDiagnosticEngine {
 		 * Treat the console as information being read by a user of this application. Attempts should be made to ensure
 		 * console output is as least as informative as the provided methods.
 		 */
+		if(validateCarDataFields(car)) {
+			Map<PartType, Integer> missingParts = car.getMissingPartsMap();
+			if(missingParts.isEmpty()) {
+				List<Part> parts = car.getParts();
+				List<Part> damagedParts = parts.stream()
+						.filter(p -> {
+							switch(p.getCondition()) {
+								case NEW:
+								case GOOD:
+								case WORN:
+									return false;
+								default:
+									return true;
+							}
+						}).collect(Collectors.toList());
+				if(damagedParts.isEmpty()) {
+					System.out.println("This car has no missing parts and no parts are damaged.");
+				} else {
+					damagedParts.forEach(p -> printDamagedPart(p.getType(), p.getCondition()));
+				}
+			} else {
+				missingParts.entrySet().forEach(e -> printMissingPart(e.getKey(), e.getValue()));
+			}
+		}
 
+	}
 
+	private boolean validateCarDataFields(Car car) {
+		boolean validated = true;
+		int missingFlag = 0;
+
+		if(car.getYear() == null) {
+			missingFlag |= YEAR_MISSING;
+		}
+		if(car.getMake() == null) {
+			missingFlag |= MAKE_MISSING;
+		}
+		if(car.getModel() == null) {
+			missingFlag |= MODEL_MISSING;
+		}
+
+		if(missingFlag > 0) {
+			validated = false;
+			StringBuilder sb = new StringBuilder("The car is missing one or more data fields:");
+			if((missingFlag & YEAR_MISSING) > 0) {
+				sb.append(System.lineSeparator()).append("\t").append("year");
+			}
+			if((missingFlag & MAKE_MISSING) > 0) {
+				sb.append(System.lineSeparator()).append("\t").append("make");
+			}
+			if((missingFlag & MODEL_MISSING) > 0) {
+				sb.append(System.lineSeparator()).append("\t").append("model");
+			}
+			System.out.println(sb.toString());
+		}
+
+		return validated;
 	}
 
 	private void printMissingPart(PartType partType, Integer count) {
@@ -58,11 +120,18 @@ public class CarDiagnosticEngine {
 
 	public static void main(String[] args) throws JAXBException {
 		// Load classpath resource
-		InputStream xml = ClassLoader.getSystemResourceAsStream("SampleCar.xml");
+		String xmlFileName = "SampleCar.xml";
+		//String xmlFileName = "SampleCarMissingYear.xml";
+		//String xmlFileName = "SampleCarMissingMake.xml";
+		//String xmlFileName = "SampleCarMissingModel.xml";
+		//String xmlFileName = "SampleCarMissingAll.xml";
+		//String xmlFileName = "SampleCarMissingOneTire.xml";
+		//String xmlFileName = "SampleCarMissingEngine.xml";
+		InputStream xml = ClassLoader.getSystemResourceAsStream(xmlFileName);
 
 		// Verify resource was loaded properly
 		if (xml == null) {
-			System.err.println("An error occurred attempting to load SampleCar.xml");
+			System.err.println("An error occurred attempting to load " + xmlFileName);
 
 			System.exit(1);
 		}

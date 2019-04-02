@@ -2,7 +2,6 @@
 <car>
 	<year>2006</year>
 	<make>Ford</make>
-	<model>Explorer</model>
 	<parts>
 		<inventoryId>engine</inventoryId>
 		<type>ENGINE</type>
